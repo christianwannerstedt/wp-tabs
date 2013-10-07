@@ -13,15 +13,6 @@ foreach ($tab_containers as $tab_container){ ?>
 	<li>
 		<a class='wptab-link' data-id='<?php echo $tab_container->id; ?>'><?php echo $tab_container->title; ?></a>
 	</li>
-	<li>
-		<a class='wptab-link' data-id='<?php echo $tab_container->id; ?>'><?php echo $tab_container->title; ?></a>
-	</li>
-	<li>
-		<a class='wptab-link' data-id='<?php echo $tab_container->id; ?>'><?php echo $tab_container->title; ?></a>
-	</li>
-	<li>
-		<a class='wptab-link' data-id='<?php echo $tab_container->id; ?>'><?php echo $tab_container->title; ?></a>
-	</li>
 	<?php }
 ?>
 </ul>
