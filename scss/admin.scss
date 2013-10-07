@@ -138,3 +138,42 @@ ul, li, ul li { margin: 0; padding: 0; }
 		}
 	}
 }
+
+
+#wptabs-embedder-list {
+	border: 1px solid #000;
+	background-color: #eee;
+    height: 500px;
+    left: 50%;
+    margin-left: -150px;
+    position: fixed;
+    top: 50px;
+    width: 300px;
+    z-index: 1000;
+    padding: 20px 15px;
+    overflow: scroll;
+
+    .header {
+    	h2 {
+    		float: left;
+    		margin: 0;
+    		padding: 0;
+    	}
+    	a {
+    		float: right;
+    	}
+    }
+    ul {
+    	margin-top: 20px;
+    	li {
+    		padding: 5px 10px;
+    		&:nth-child(2n+1){
+	    		background-color: #ddd;
+	    	}
+    	}
+    }
+
+    a {
+    	cursor: pointer;
+    }
+}

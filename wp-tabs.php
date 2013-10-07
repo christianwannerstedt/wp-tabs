@@ -390,4 +390,40 @@ function wptabs_get_tab_container_output_for_id($id){
 	}
 	return $tab_container_html;
 }
+
+
+
+
+// ****************************** Add button to TinyMCE ******************************
+function wptabs_add_tinymce_button() {
+   	if (!current_user_can('edit_posts') && !current_user_can('edit_pages')) return;
+	if (get_user_option('rich_editing') == 'true'){
+		add_filter('mce_external_plugins', 'wptabs_add_tinymce_plugin');
+     	add_filter('mce_buttons', 'wptabs_register_tinymce_button');
+   	}
+}
+add_action('init', 'wptabs_add_tinymce_button');
+function wptabs_register_tinymce_button($buttons) {
+	wp_enqueue_style('wptabs', plugins_url('/css/admin.css', __FILE__));
+   	array_push($buttons, "|", "wptabs");
+   	return $buttons;
+}
+function wptabs_add_tinymce_plugin($plugin_array) {
+   $plugin_array['wptabs'] = plugins_url('/js/editor-plugin.js', __FILE__);
+   return $plugin_array;
+}
+
+function wptabs_list() {
+	global $wpdb, $tab_containers;
+	$tab_containers = $wpdb->get_results(sprintf("SELECT * FROM `%s` ORDER BY id;", WPTABS_TABLE_TABS_CONTAINER));
+	foreach ($tab_containers as $tab_container){
+		$tab_container->tabs = $wpdb->get_results(sprintf("SELECT title FROM `%s` WHERE tabContainerId='%d' ORDER BY position;", WPTABS_TABLE_TABS, $tab_container->id));
+	}
+
+	require_once(dirname(__FILE__) .'/list-tab-containers.php');
+	die();
+}
+add_action('wp_ajax_wptabs_list', 'wptabs_list');
+
+
 ?>
