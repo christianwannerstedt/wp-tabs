@@ -15,6 +15,7 @@ var tinymce_url = '<?php echo plugins_url(); ?>tiny-mce-textarea.php',
 </script>
 
 <div class="wrap">
+
 	<div class="metabox-holder">
 		<?php do_meta_boxes('wptabs_edit','normal', null); ?>
 	</div>
@@ -32,15 +33,14 @@ var tinymce_url = '<?php echo plugins_url(); ?>tiny-mce-textarea.php',
 <?php
 // ****************************** Create box ******************************
 function wptabs_create_meta_box(){
-global $wpdb, $slide_show;
+global $wpdb, $tab_container;
 ?>
 
-	<form id="form-create-tab" action="#" method="post" enctype="multipart/form-data">
-		<input type="hidden" id="tab-container-id" value="<?php echo $tab_container->id; ?>">
+	<form id="form-create-tab" action="<?php echo admin_url('admin.php') .'?page=wptabs-edit-tab-container&tab_container_id='. $tab_container->id; ?>" method="post">
 		<ul class="wptabs-ul-settings">
 			<li>
 				<label>Title:</label>
-				<input type="text" id="new-tab-container-title" value="">
+				<input type="text" id="new-tab-container-title" name="title" value="">
 			</li>
 		</ul>
 		<input type="submit" class="button-primary" id="wptabs-create-submit" value="Update" />
@@ -58,51 +58,50 @@ function wptabs_edit_meta_box(){
 global $wpdb, $tabs;
 ?>
 
-<!-- Templates -->
-<script type="text/template" id="tabs-template">
-    <%
-    var head_template = _.template(jQuery('#tab-head-template') .html());
-    var inner_template = _.template(jQuery('#tab-template') .html());
-    %>
-	<div class="tabcontainer">
-		<div id="tab-header">
-			<% _.each(tabs, function(tab, i){ %>
-				<% tab.i = i; %>
-				<%= head_template(tab) %>
-			<% }); %>
-		</div>
-		<div id="tab-content-container">
-			<% _.each(tabs, function(tab, i){ %>
-				<%= inner_template(tab) %>
-			<% }); %>
-		</div>
-    </div>
-</script>
-<script type="text/template" id="tab-head-template">
-	<div id="tab-<%= id %>" class="tab<% if (i == 0){ %> active<% } %>" data-tab="<%= i %>" data-id="<%= id %>"><%= title %></div>
-</script>
-<script type="text/template" id="tab-template">
-	<div id="tab-content-<%= id %>" class="tab-content<% if (i == 0){ %> active<% } %>" data-tab="<%= i %>">
-		<ul class="edit-tab-info">
-			<li class="clearfix">
-				<label for="tab-<%= id %>-title">Title: </label>
-				<input id="tab-<%= id %>-title" type="text" value="<%= title %>">
-			</li>
-			<li class="clearfix">
-				<label for="tab-<%= id %>-body">Body: </label>
-				<textarea id="tab-<%= id %>-body" type="text"><%= body %></textarea>
-			</li>
-		</ul>
-		<p>
-			<input type="button" id="update-tab-<%= id %>" class="update-tab-button button-primary" value="Update" />
-			<input type="button" id="delete-tab-<%= id %>" class="delete-tab-button button-secondary" value="Delete tab" />
-		</p>
-		<p id="tab-<%= id %>-updated" class="tab-updated">tab updated</p>
+	<div id="edit-tabs-list-container">
+		<div class="tabcontainer">
+			<div id="tab-header">
+				<?php
+				$i = 0;
+				foreach ($tabs as $tab) { ?>
+					<div id="tab-<?php echo $tab->id ?>" class="tab<?php if ($i == 0) echo " active"; ?>" data-tab="<?php echo $i ?>" data-id="<?php echo $tab->id ?>">
+						<?php echo $tab->title ?>
+					</div>
+					<?php
+					$i++;
+				} ?>
+			</div>
+			<div id="tab-content-container">
+				<?php
+				$i = 0;
+				foreach ($tabs as $tab) { ?>
+					<div id="tab-content-<?php echo $tab->id ?>" class="tab-content<?php if ($i == 0) echo " active"; ?>" data-tab="<?php echo $i ?>">
+						<ul class="edit-tab-info">
+							<li class="clearfix">
+								<label for="tab-<?php echo $tab->id ?>-title">Title: </label>
+								<input id="tab-<?php echo $tab->id ?>-title" type="text" value="<?php echo $tab->title ?>">
+							</li>
+							<li class="clearfix">
+								<label for="tab-<?php echo $tab->id ?>-body">Body: </label>
+								<?php wp_editor($tab->body, 'tab-'. $tab->id .'-body', array(
+									'textarea_rows' => 15,
+        							'media_buttons' => false
+								)); ?>
+							</li>
+						</ul>
+						<p>
+							<input type="button" data-id="<?php echo $tab->id; ?>" class="update-tab-button button-primary" value="Update" />
+							<input type="button" data-id="<?php echo $tab->id; ?>" class="delete-tab-button button-secondary" value="Delete tab" />
+							<span id="tab-<?php echo $tab->id ?>-updated" class="tab-updated">Tab updated</span>
+						</p>
+					</div>
+					<?php
+					$i++;
+				} ?>
+			</div>
+	    </div>
+
 	</div>
-</script>
-
-
-	<div id="edit-tabs-list-container"></div>
 
 <?php
 }
@@ -113,7 +112,7 @@ function wptabs_settings_meta_box(){
 global $wpdb, $tab_container;
 ?>
 
-	<form id="form-update-wptabs-settings" action="#" method="post" enctype="multipart/form-data">
+	<form id="form-update-wptabs-settings" action="#" method="post">
 		<input type="hidden" id="tab-container-id" value="<?php echo $tab_container->id; ?>">
 		<ul class="wptabs-ul-settings">
 			<li>

@@ -158,6 +158,14 @@ function wptabs_edit_tab_container_view() {
 		wp_die( __('The specified tab container does not exist.') );
 	}
 
+	if (isset($_POST["title"])){
+		$wpdb->get_results(sprintf("INSERT INTO `%s` (tabContainerId,title,updated,created) VALUES(%d,'%s',NOW(),NOW());",
+			WPTABS_TABLE_TABS,
+			$tab_container_id,
+			mysql_real_escape_string($_POST["title"])
+		));
+	}
+
 	// Setup variables and render view
 	$tab_container = $result[0];
 	$tabs = $wpdb->get_results(sprintf("SELECT * FROM %s WHERE tabContainerId=%d ORDER BY position;", WPTABS_TABLE_TABS, $tab_container->id));
@@ -174,26 +182,7 @@ function wptabs_edit_tab_container_head() {
 	wp_enqueue_script("jquery-ui-sortable");
 
 	// Needed for tiny mce
-	wp_enqueue_script(array('jquery', 'editor'));
-	wp_enqueue_script('media-upload');
-	wp_enqueue_script('thickbox');
     wp_enqueue_script('tiny_mce');
-    wp_enqueue_script( 'common' );
-    wp_enqueue_script( 'jquery-color' );
-    wp_print_scripts('editor');
-    if (function_exists('add_thickbox')) add_thickbox();
-    wp_print_scripts('media-upload');
-    if (function_exists('wp_tiny_mce')) wp_tiny_mce();
-
-    wp_admin_css();
-    wp_enqueue_script('utils');
-    do_action("admin_print_styles-post-php");
-    do_action('admin_print_styles');
-
-
-	// Add js libs (backbone, underscore)
-	wp_enqueue_script('underscore', plugins_url('js/libs/underscore-min.js', __FILE__));
-	wp_enqueue_script('backbone', plugins_url('js/libs/backbone-min.js', __FILE__));
 
 	// Add own scripts
 	wp_enqueue_script('wptabs-edit-tab-container', plugins_url('js/admin_edit_tab_container.js', __FILE__));
@@ -231,38 +220,6 @@ function wptabs_tinymce_textarea_callback() {
 	wptabs_assert_admin_access();
 
 	require_once(dirname(__FILE__) .'/tiny-mce-textarea.php');
-
-	die();
-}
-
-// ****************************** Create tab (AJAX) ******************************
-add_action('wp_ajax_create_tab', 'wptabs_create_tab_callback');
-function wptabs_create_tab_callback() {
-	global $wpdb;
-
-	if (isset($_POST['title']) && is_numeric($_POST['tab_container_id'])){
-
-		$wpdb->get_results(sprintf("INSERT INTO `%s` SET tabContainerId=%d, title='%s', updated=NOW(), created=NOW();",
-			WPTABS_TABLE_TABS,
-            mysql_real_escape_string($_POST["tab_container_id"]),
-            mysql_real_escape_string($_POST["title"])
-        ));
-
-		$tab = $wpdb->get_results(sprintf("SELECT * FROM `%s` WHERE title='%s' AND tabContainerId=%d ORDER BY id DESC LIMIT 1;",
-			WPTABS_TABLE_TABS,
-            mysql_real_escape_string($_POST["title"]),
-            mysql_real_escape_string($_POST["tab_container_id"])
-		));
-
-    	echo json_encode(array(
-    		'status' => 200,
-    		'tab' => $tab[0]
-    	));
-
-
-	} else {
-		echo 500;
-	}
 
 	die();
 }
@@ -383,7 +340,7 @@ function wptabs_get_tab_container_output_for_id($id){
 		}
 		$i = 0;
 		foreach ($tabs as $tab){
-			$tab_container_html .= '<div class="tab-content'. (($i == 0) ? ' active' : '') .'" data-tab="'. $i .'">'. $tab->body .'</div>';
+			$tab_container_html .= '<div class="tab-content'. (($i == 0) ? ' active' : '') .'" data-tab="'. $i .'">'. stripslashes($tab->body) .'</div>';
 			$i++;
 		}
 		$tab_container_html .= '</div>';
