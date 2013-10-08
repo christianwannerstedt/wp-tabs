@@ -43,13 +43,16 @@
 			}
 		});
 		$(".update-tab-button").on("click", function(e){
+			tinyMCE.triggerSave();
 			var tab_id = $(this).attr("data-id"),
+				tiny_id = "tab"+ tab_id +"body"
 				data = {
 					action: "update_tab",
 					tab_id: tab_id,
 					title: $("#tab-"+ tab_id +"-title").val(),
-					body: tinymce.get("tab-"+ tab_id +"-body").getContent()
+					body: (tinymce.get(tiny_id)) ? tinymce.get(tiny_id).getContent() : $("#"+ tiny_id).val()
 				};
+
 			$.post(ajaxurl, data, function(response){
 				if (response == 200){
 					$("#tab-"+ data.tab_id +"-updated").fadeIn("slow", function(){

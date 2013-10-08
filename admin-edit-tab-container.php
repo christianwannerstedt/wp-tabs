@@ -83,9 +83,9 @@ global $wpdb, $tabs;
 							</li>
 							<li class="clearfix">
 								<label for="tab-<?php echo $tab->id ?>-body">Body: </label>
-								<?php wp_editor($tab->body, 'tab-'. $tab->id .'-body', array(
+								<?php wp_editor(stripslashes($tab->body), 'tab'. $tab->id .'body', array(
 									'textarea_rows' => 15,
-        							'media_buttons' => false
+        							'media_buttons' => true
 								)); ?>
 							</li>
 						</ul>
