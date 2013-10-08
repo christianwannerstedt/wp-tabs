@@ -27,7 +27,7 @@ global $wpdb;
 			</li>
 		</ul>
 
-		<input type="submit" class="button-primary" value="Add slide show" />
+		<input type="submit" class="button-primary" value="Add tab container" />
 
 	</form>
 
